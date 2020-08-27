@@ -1,0 +1,159 @@
+<HEAD>
+
+    <style type="text/css">
+        <!--
+        .bgclr {
+            background-color: white;
+            color: black;
+            font-weight: bold;
+        }
+
+        -->
+
+        .hidden {
+            display: none;
+        }
+
+        .visible {
+            display: block;
+        }
+
+    </style>
+
+    <script language="JavaScript">
+
+
+        // Insert scooter questions number of questions
+        let numQues = 5;
+
+        // Insert number of choices in each question
+        let numChoi = 3;
+
+        // Insert number of questions displayed in answer area
+        let answers = new Array(5);
+
+        // Insert answers to questions
+        answers[0] = "Keep to the left side of the road far as is safe.";
+        answers[1] = "Road which cross.";
+        answers[2] = "When a traffic officer order you to do so.";
+        answers[3] = "Traffic circle where right of way is applicable.";
+        answers[4] = "(i), (ii) and (iii)";
+        answers[5] = "A marked pedestrian crossing ahead.";
+
+
+        function getScore(form) {
+            showCorrectAnswers();
+
+            let score = 0;
+            let currElt;
+            let currSelection;
+            for (let i = 0; i < numQues; i++) {
+                currElt = i * numChoi;
+                for (let j = 0; j < numChoi; j++) {
+                    currSelection = form.elements[currElt + j];
+                    if (currSelection.checked) {
+                        if (currSelection.value === answers[i]) {
+                            score++;
+                            break;
+                        }
+                    }
+                }
+            }
+            score = Math.round(score / numQues * 100);
+
+            form.percentage.value = score;
+
+            let correctAnswers = "";
+            for (let i = 1; i <= numQues; i++) {
+                correctAnswers += i + ". " + answers[i - 1] + "\r\n";
+            }
+
+            form.solutions.value = correctAnswers;
+        }
+
+        function showCorrectAnswers() {
+            let q1Inputs = document.querySelectorAll('.q1-inputs input');
+            let correctAnswer = document.querySelector('.q1-inputs span');
+            let correct = correctAnswer.textContent;
+            q1Inputs.forEach(function (element) {
+                if (element.checked) {
+                    if (element.value !== correct) {
+                        correctAnswer.classList.remove('hidden');
+                    } else {
+                        correctAnswer.classList.add('hidden');
+                    }
+                }
+            });
+        }
+    </script>
+
+</HEAD>
+
+<BODY>
+
+
+<form name="quiz">
+    1. Which rule is considered the most important RULE OF THE ROAD in South Africa?
+    <ul class="q1-inputs" style="margin-top: 1pt">
+        <li><input type="radio" name="q1" value="Always be courteous and considerate towards fellow road users.">Always
+            be courteous and considerate towards fellow road users.
+        </li>
+        <li><input type="radio" name="q1" value="Do not exceed the speed limit.">Do not exceed the speed limit.</li>
+        <li><input type="radio" name="q1" value="Keep to the left side of the road far as is safe.">Keep to the left
+            side of the road far as is safe.
+        </li>
+        <span class="hidden" style="color:red;">Keep to the left side of the road far as is safe.</span>
+
+
+    </ul>
+    2. Sign L9 warns you about... ahead.
+
+    <ul style="margin-top: 1pt">
+        <li><input type="radio" name="q2" value="Where you are also not allowed to park."> Where you are also not
+            allowed to park..
+        </li>
+        <li><input type="radio" name="q2" value="A railway crossing">A railway crossing</li>
+        <li><input type="radio" name="q2" value="Road which cross">Road which cross</li>
+    </ul>
+
+
+    3.Under what circumstances, if any, are you allowed to drive your motor motor vehicle on the right-hand side of a
+    public road with traffic moving in both directions?
+    <ul style="margin-top: 1pt">
+        <li><input type="radio" name="q3" value="When you switch the emergency lights of your vehicle on.">When you
+            switch the emergency lights of your vehicle on.
+        </li>
+        <li><input type="radio" name="q3" value="When a traffic officer order you to do so.">When a traffic officer
+            order you to do so.
+        </li>
+        <li><input type="radio" name="q3" value="Under no circumstance.">Under no circumstance.</li>
+    </ul>
+
+
+    4.Sign CC9 is found at ..
+    <ul style="margin-top: 1pt">
+        <li><input type="radio" name="q4" value="Traffic circle where right of way is applicable.">Traffic circle where
+            right of way is applicable.
+        </li>
+        <li><input type="radio" name="q4" value="Dangerous place where roadwork is being done.">Dangerous place where
+            roadwork is being done.
+        </li>
+        <li><input type="radio" name="q4" value="Sharp curve to the right.">Sharp curve to the right.</li>
+    </ul>
+
+    5.You may not obtain a learner’s license if...
+
+    <ul style="margin-top: 1pt">
+        <li><input type="radio" name="q5" value="A first-aid post."> A first-aid post.</li>
+        <li><input type="radio" name="q5" value="A railway crossing">A railway crossing</li>
+        <li><input type="radio" name="q5" value="Road which cross">Road which cross</li>
+    </ul>
+
+
+    <input type="button" value="Get score" onClick="getScore(this.form)">
+    <input type="reset" value="Clear answers">
+    <p> Score = <strong><input class="bgclr" type="text" size="5" name="percentage" disabled></strong><br><br>
+        Correct answers:<br>
+        <textarea class="bgclr" name="solutions" wrap="virtual" rows="10" cols="100" disabled>
+</textarea>
+</form>

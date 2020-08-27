@@ -1,0 +1,158 @@
+#parent {
+    display: inline-block;
+    margin: 100px;
+    padding: 3px;
+    background-color: #ffffff;
+    position:relative;
+    height:600px;
+    width:800px;
+    text-align: center;
+    border:1px solid #656565
+}
+.corner {
+    position:absolute;
+    margin:0;
+    padding:5px;
+    background-color: #cdcdcd;
+    border:1px solid #b8b8b8
+}
+#top_left {
+    top:0;
+    left:0;
+}
+#top_right {
+    top:0;
+    right:0;
+}
+#bottom_left {
+    bottom:0;
+    left:0;
+}
+#bottom_right {
+    bottom:0;
+    right:0;
+}
+.unselectable {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+
+#main-container {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    background-color: #b8b8b8;
+}
+#question {
+    position:absolute;
+    margin: 25% 25% 44% 44%;
+    padding: 0;
+    top: 0;
+    left: 0;
+    background-color: #ffffff;
+    border:3px solid #ffffff
+
+}
+#choice_options li {
+    list-style-type: none;
+    text-align: left;
+}
+ul {
+    padding-inline-start: 0;
+    margin-right: 10px;
+}
+.active_button {
+    font-size: 150%;
+    background-color: #4CAF50;
+    color: white;
+    text-decoration: none;
+    display: inline-block;
+    padding: 8px 16px;
+}
+.active_button:hover {
+    opacity: 0.85;
+}
+
+.text_box {
+    opacity: 0.8;
+    font-size: 225%;
+}
+#cancel_button {
+    background-color: #ff2e2e;
+}
+.page_button {
+    background-color: #ff5900;
+}
+
+.inactive_button {
+    font-size: 150%;
+    background-color: #5a5a5a;
+    color: #2d2d2d;
+    text-decoration: none;
+    display: inline-block;
+    padding: 8px 16px;
+    opacity: 0.75;
+}
+
+
+p {
+    text-align: left
+}
+#penalty_text {
+    font-size:100%;
+    margin: 5px 15px 5px 5px;
+    text-align: right;
+}
+
+.radio_button {
+    width:  30px;
+    height: 30px;
+    margin: 10px;
+}
+#quiz_question {
+    margin: 10px;
+    padding: 0;
+}
+#stopwatch {
+    margin: 15px;
+}
+#curr_page {
+    margin: 5px 15px 0;
+}
+#quiz_title {
+    font-size:145%;
+    margin: 5px;
+    text-align: left;
+}
+@media screen and (max-width: 980px) {
+
+
+    #parent {
+        margin: 0;
+    }
+    #question {
+        margin-left: 40%;
+        margin-bottom: 40%;
+    }
+}
+@media screen and (max-width: 550px) {
+    .text_box {
+        font-size: 120%;
+    }
+    .active_button {
+        padding: 10px;
+        font-size: 75%
+    }
+    .inactive_button {
+        padding: 10px;
+        font-size: 75%;
+    }
+    #question {
+        margin-left: 40%;
+        margin-top: 40%;
+    }
+}
