@@ -93,8 +93,8 @@ function update_page_button() {
 }
 function finish_quiz() {
     if(ready_to_finish) {
-        localStorage.setItem("answers", JSON.stringify(questions));
-        location.href = 'results.html';
+        (document.getElementById("json_quiz_field") as HTMLInputElement).value = JSON.stringify(questions);
+        (document.getElementById("finish_form") as HTMLFormElement).submit();
     }
 }
 function next_question() {

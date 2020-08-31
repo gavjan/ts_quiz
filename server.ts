@@ -45,8 +45,9 @@ function to_sql_date(date: Date): string {
     return date.toISOString().replace("T", " ").replace(/\.[0-9]{3}Z/g, "");
 }
 
-function load_home_page(req, res) {
+function load_quiz(req, res) {
     res.render('quiz', {
+        csrfToken: req.csrfToken(),
         quiz_json: JSON.stringify(questions_json),
     });
 }
@@ -68,7 +69,11 @@ server.use(csrfProtection);
 server.set('view engine', 'pug');
 
 server.get('/', function(req, res) {
-    load_home_page(req, res);
+    load_quiz(req, res);
+});
+server.post('/finish_quiz', function(req, res) {
+    console.log(req.body.json_quiz);
+    load_quiz(req,res);
 });
 
 //make_db();

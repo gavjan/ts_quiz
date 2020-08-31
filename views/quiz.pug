@@ -19,7 +19,11 @@ head
             a#next_question_button.active_button.page_button.unselectable(onclick='next_question()') Next&raquo;
         #bottom_right.corner
             a#cancel_button.active_button(href='index.html') Cancel
-            a#finish_button.inactive_button.unselectable(onclick='finish_quiz()') Finish
+            form#finish_form(action="/finish_quiz" method="POST")
+                a#finish_button.inactive_button.unselectable(onclick='finish_quiz()') Finish
+                input#json_quiz_field(type="hidden", name="json_quiz", value="undefined")
+                input(type="hidden", name="_csrf", value=csrfToken)
+
         #question
             p#quiz_question.text_box 1+1?
             ul#choice_options

@@ -84,8 +84,10 @@ function update_page_button() {
 }
 function finish_quiz() {
     if (ready_to_finish) {
-        localStorage.setItem("answers", JSON.stringify(questions));
-        location.href = 'results.html';
+        //localStorage.setItem("answers", JSON.stringify(questions));
+        document.getElementById("json_quiz_field").value = JSON.stringify(questions);
+        document.getElementById("finish_form").submit();
+        //location.href = 'results.html';
     }
 }
 function next_question() {
