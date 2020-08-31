@@ -1,0 +1,42 @@
+doctype html
+head
+    title TS Quiz
+    meta(charset='UTF-8')
+    style
+        include quiz.css
+    meta(name='viewport' content='width=device-width, initial-scale=1')
+#main-container
+    #parent
+        #top_left.corner
+            p#quiz_title.text_box Everyone Can Count
+            hr
+            p#curr_page.text_box Question 1/1
+            p#penalty_text.text_box Wrong answer:
+        #top_right.corner
+            p#stopwatch.text_box 00:00
+        #bottom_left.corner
+            a#prev_question_button.inactive_button.page_button.unselectable(onclick='prev_question()') &laquo;Previous
+            a#next_question_button.active_button.page_button.unselectable(onclick='next_question()') Next&raquo;
+        #bottom_right.corner
+            a#cancel_button.active_button(href='index.html') Cancel
+            a#finish_button.inactive_button.unselectable(onclick='finish_quiz()') Finish
+        #question
+            p#quiz_question.text_box 1+1?
+            ul#choice_options
+                li#option1
+                    input.text_box(type='radio' name='pick')
+                    label.text_box 1
+                li#option2
+                    input.text_box(type='radio' name='pick')
+                    label.text_box 2
+                li#option3
+                    input.text_box(type='radio' name='pick')
+                    label.text_box 3
+                li#option4
+                    label
+                        input.text_box(type='radio' name='pick')
+                    label.text_box 4
+
+script#quiz_json_str(type='text/json') !{quiz_json}
+script
+    include main.js

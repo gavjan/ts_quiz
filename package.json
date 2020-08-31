@@ -1,0 +1,37 @@
+{
+  "name": "ts_quiz",
+  "version": "1.0.0",
+  "description": "Arithmetic Quiz implemented in TypeScript",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc --target es2015 views/main.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gavjan/ts_quiz.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cookie-parser": "^1.4.5",
+    "csurf": "^1.11.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "fs": "0.0.1-security",
+    "npm-watch": "^0.7.0",
+    "pug": "^3.0.0",
+    "sqlite3": "^5.0.0",
+    "typescript": "^4.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^14.6.1",
+    "@types/sqlite3": "^3.1.6",
+    "mocha": "^8.1.2",
+    "ts-node": "^9.0.0"
+  },
+  "bugs": {
+    "url": "https://github.com/gavjan/ts_quiz/issues"
+  },
+  "homepage": "https://github.com/gavjan/ts_quiz#readme"
+}

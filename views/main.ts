@@ -1,41 +1,5 @@
-let questions = [
-    {
-        question: "9+7",
-        options: [15, 13, 17],
-        ans: 16,
-        choice: 0,
-        time_spent: 0,
-        penalty: 5
-    }, {
-        question: "4*6",
-        options: [22, 12, 23],
-        ans: 24,
-        choice: 0,
-        time_spent: 0,
-        penalty: 10
-    }, {
-        question: "9*8",
-        options: [81, 98, 64],
-        ans: 72,
-        choice: 0,
-        time_spent: 0,
-        penalty: 10
-    }, {
-        question: "(9+6)*6",
-        options: [84, 81, 96],
-        ans: 90,
-        choice: 0,
-        time_spent: 0,
-        penalty: 15
-    }, {
-        question: "((9*9)-1)/2",
-        options: [20, 24, 48],
-        ans: 40,
-        choice: 0,
-        time_spent: 0,
-        penalty: 15
-    }
-]
+let questions = JSON.parse(document.getElementById("quiz_json_str").innerHTML);
+
 let curr_question = 0;
 let ready_to_finish = false;
 function shuffle_questions() {
