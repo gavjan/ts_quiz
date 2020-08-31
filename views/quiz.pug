@@ -22,6 +22,7 @@ head
             form#finish_form(action="/finish_quiz" method="POST")
                 a#finish_button.inactive_button.unselectable(onclick='finish_quiz()') Finish
                 input#json_quiz_field(type="hidden", name="json_quiz", value="undefined")
+                input(type="hidden", name="quiz_id", value=quiz_id)
                 input(type="hidden", name="_csrf", value=csrfToken)
 
         #question

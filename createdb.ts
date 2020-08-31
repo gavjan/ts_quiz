@@ -95,7 +95,7 @@ function make_db() {
 
     db.run('CREATE TABLE answers (' +
         'username VARCHAR(36),' +
-        'time_spent INT,' +
+        'score INT,' +
         'answer_json VARCHAR(4096),' +
         'id INT); ', () => {
 

@@ -10,7 +10,20 @@ head
 
 div(style='text-align:center')
     h1(style='font-size: 80px') Results
-    button#save_score_button.button.blue(onclick='save_score()')  Save Score
-    button#save_detailed_score_button.button.blue(onclick='save_detailed_score()')  Save Detailed Score
-    button.button.blue(onclick="location.href = 'index.html'")  Start Again
+    table
+        tr
+            th No.
+            th Question
+            th Correct Ans.
+            th Your Ans.
+            th Score
+        each stat in stats
+            tr
+                td= stat.num
+                td= stat.question_str
+                td= stat.ans
+                td= stat.your_ans
+                td= stat.score
+
+    h2="Overall Score: " + overall_score
     script(src='assets/js/results.js')
