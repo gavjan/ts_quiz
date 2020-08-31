@@ -7,22 +7,58 @@ function to_sql_date(date: Date): string {
     return date.toISOString().replace("T", " ").replace(/\.[0-9]{3}Z/g, "");
 }
 
-function load_quiz(req, res) {
-    let quiz_id = 1;
+function load_quiz(req, res, quiz_id) {
     let sql = 'SELECT quiz_json FROM quizzes WHERE id = ' + quiz_id + ';';
     db.all(sql, [], (err, rows) => {
         if(err) throw(err);
         let quiz_json_str: string;
         for(let {quiz_json} of rows)
             quiz_json_str = quiz_json;
-        let questions_json = JSON.parse(quiz_json_str);
+        if(quiz_json_str != undefined) {
+            let questions_json = JSON.parse(quiz_json_str.replace(/'/g, '"'));
 
-        res.render('quiz', {
-            csrfToken: req.csrfToken(),
-            quiz_json: JSON.stringify(questions_json),
-        });
+            res.render('quiz', {
+                csrfToken: req.csrfToken(),
+                quiz_json: JSON.stringify(questions_json),
+            });
+
+        } else
+            load_quiz_list(req, res);
     });
 
+}
+function load_quiz_stat(req, res, quiz_id) {
+    //let sql = 'SELECT quiz_json FROM quizzes WHERE id = ' + quiz_id + ';';
+    //db.all(sql, [], (err, rows) => {
+    //    if(err) throw(err);
+    //    let quiz_json_str: string;
+    //    for(let {quiz_json} of rows)
+    //        quiz_json_str = quiz_json;
+    //    if(quiz_json_str != undefined) {
+    //        let questions_json = JSON.parse(quiz_json_str.replace(/'/g, '"'));
+
+            res.render('quiz_stat', {
+                csrfToken: req.csrfToken()
+            });
+
+    //    } else
+    //        load_quiz_list(req, res);
+    //});
+
+}
+function load_quiz_list(req, res) {
+    let sql = 'SELECT id FROM quizzes;';
+    db.all(sql, [], (err, rows) => {
+        if(err) throw(err);
+        let quiz_id_arr = [];
+        for(let {id} of rows)
+            quiz_id_arr.push(id);
+
+        res.render('quizzes', {
+            csrfToken: req.csrfToken(),
+            quizzes: quiz_id_arr
+        });
+    });
 }
 let open = promisify(fs.open);
 let express = require('express');
@@ -42,12 +78,25 @@ server.use(cookieParser());
 server.use(csrfProtection);
 server.set('view engine', 'pug');
 
-server.get('/', function(req, res) {
-    load_quiz(req, res);
+server.get('/quizzes', function(req, res) {
+    load_quiz_list(req, res);
+});
+server.get('/quiz', function(req, res) {
+    let url = req.url;
+    let regex = /\?quiz_id=\d+\b/;
+    if(regex.test(url)) {
+        let quiz_id = /\d+/.exec(regex.exec(url)[0])[0];
+        load_quiz(req, res,quiz_id);
+    }
+    else
+        load_quiz_list(req, res);
+
+
+
 });
 server.post('/finish_quiz', function(req, res) {
     console.log(req.body.json_quiz);
-    load_quiz(req,res);
+    load_quiz_stat(req,res,1);
 });
 
 //make_db();
