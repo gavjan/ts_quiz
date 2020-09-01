@@ -1,7 +1,5 @@
-import * as fs from 'fs';
-import {promisify} from 'util';
 import * as sqlite3 from 'sqlite3';
-import {sign} from "crypto";
+
 
 function to_sql_date(date: Date): string {
     return date.toISOString().replace("T", " ").replace(/\.[0-9]{3}Z/g, "");
@@ -209,8 +207,8 @@ function load_change_pass(req, res) {
         csrfToken: req.csrfToken(),
     });
 }
-function signed_in_session(req,res) {
-    return new Promise((resolve,reject) => {
+function signed_in_session(req) {
+    return new Promise((resolve) => {
         let signed_in = (req.session.username !== undefined);
         if(!signed_in) resolve(false);
 
@@ -250,7 +248,6 @@ function change_pass(req, res) {
     }
 
 }
-let open = promisify(fs.open);
 let express = require('express');
 let server = express();
 let cookieParser = require('cookie-parser');
@@ -271,7 +268,7 @@ server.use(csrfProtection);
 server.set('view engine', 'pug');
 
 server.get('/quizzes', function(req, res) {
-    signed_in_session(req,res).then(signed_in => {
+    signed_in_session(req).then(signed_in => {
         if(signed_in)
             load_quiz_list(req, res);
         else
@@ -280,7 +277,7 @@ server.get('/quizzes', function(req, res) {
     });
 });
 server.get('/quiz', function(req, res) {
-    signed_in_session(req,res).then(signed_in => {
+    signed_in_session(req).then(signed_in => {
         if(signed_in) {
             let url = req.url;
             let regex = /\?quiz_id=\d+\b/;
@@ -315,7 +312,7 @@ server.get('/sign_out', function(req, res) {
     }
 });
 server.get('/', function(req, res) {
-    signed_in_session(req,res).then(signed_in => {
+    signed_in_session(req).then(signed_in => {
         if(signed_in)
             load_quiz_list(req, res);
         else
@@ -324,7 +321,7 @@ server.get('/', function(req, res) {
     });
 });
 server.get('/change_pass', function(req, res) {
-    signed_in_session(req,res).then(signed_in => {
+    signed_in_session(req).then(signed_in => {
         if(signed_in)
             load_change_pass(req,res);
         else
@@ -332,7 +329,7 @@ server.get('/change_pass', function(req, res) {
     });
 });
 server.post('/finish_quiz', function(req, res) {
-    signed_in_session(req,res).then(signed_in => {
+    signed_in_session(req).then(signed_in => {
         if(signed_in)
             if(req.body.json_quiz != undefined && req.body.quiz_id != undefined) {
                 let answer_json = req.body.json_quiz.replace(/"/g, "'");
@@ -388,7 +385,7 @@ server.post('/sign_in', function(req, res) {
 });
 
 server.post('/change_pass', function(req, res) {
-    signed_in_session(req,res).then(signed_in => {
+    signed_in_session(req).then(signed_in => {
         if(signed_in)
             change_pass(req,res);
         else

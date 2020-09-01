@@ -6,7 +6,7 @@ head
         include main.css
 h1 Change Password
 form(action="/change_pass" method="POST")
-    input(type="password", placeholder="new password", name="new_password")
-    input(type="password", placeholder="new password (again)", name="new_password2")
-    input(type="submit", name="submit", value="Change Password")
+    input#password_box(type="password", placeholder="new password", name="new_password")
+    input#password_box2(type="password", placeholder="new password (again)", name="new_password2")
+    input#submit_button(type="submit", name="submit", value="Change Password")
     input(type="hidden" name="_csrf" value=csrfToken)
