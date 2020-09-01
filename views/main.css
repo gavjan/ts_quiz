@@ -167,3 +167,20 @@ input {
     box-sizing: border-box;
     margin: 3px;
 }
+table, td, th {
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th, td {
+    font-size: 300%;
+    padding: 15px;
+}
+h2 {
+    font-size: 200%;
+}

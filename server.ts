@@ -389,7 +389,7 @@ server.post('/finish_quiz', function(req, res) {
                 });
 
                 get_solve_date_diff(user_name, id).then((diff) => {
-                        console.log("server waited {$diff} seconds for client to solve the quiz.");
+                        console.log("server waited " + diff+ " seconds for client to solve the quiz.");
                         db.run('INSERT INTO answers (id, username, score, server_waited, answer_json) VALUES (' + id + ', "' + user_name + '", ' + score + ', ' + diff + ', "' + answer_json + '");', () =>
                             load_quiz_stat(req, res, id)
                         )
