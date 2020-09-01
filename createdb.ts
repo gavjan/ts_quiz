@@ -89,19 +89,23 @@ let quizzes_json = [
     }
 ];
 function make_db() {
+    db.run('CREATE TABLE sessions (' +
+        'username VARCHAR(32),' +
+        'session_key VARCHAR(16));', () => {
+
     db.run('CREATE TABLE quizzes (' +
         'id INT,' +
         'quiz_json VARCHAR(4096));', () => {
 
     db.run('CREATE TABLE answers (' +
-        'username VARCHAR(36),' +
+        'username VARCHAR(32),' +
         'score INT,' +
         'answer_json VARCHAR(4096),' +
         'id INT); ', () => {
 
     db.run('CREATE TABLE users (' +
-        'username VARCHAR(36),' +
-        'password VARCHAR(36));', () => {
+        'username VARCHAR(32),' +
+        'password VARCHAR(32));', () => {
 
         db.run('INSERT INTO users (username, password) VALUES ("user1", "user1");');
         db.run('INSERT INTO users (username, password) VALUES ("user2", "user2");');
@@ -114,10 +118,8 @@ function make_db() {
     });
     });
     });
+    });
 
 }
-function insert_db() {
 
-}
 make_db();
-//insert_db();

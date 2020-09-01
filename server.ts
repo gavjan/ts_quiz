@@ -1,12 +1,13 @@
 import * as fs from 'fs';
 import {promisify} from 'util';
 import * as sqlite3 from 'sqlite3';
+import {sign} from "crypto";
 
 function to_sql_date(date: Date): string {
     return date.toISOString().replace("T", " ").replace(/\.[0-9]{3}Z/g, "");
 }
 function load_quiz(req, res, quiz_id) {
-    let user_name = "admin" //TODO: username
+    let user_name = req.session.username;
     let sql = 'SELECT username FROM answers WHERE username = "' + user_name + '" AND id = ' + quiz_id + ';';
     db.all(sql, [], (err, rows) => {
         if(err) throw(err);
@@ -127,7 +128,7 @@ function count_questions_avg(answer_json_str_arr) {
     return questions_avg;
 }
 function load_quiz_stat(req, res, quiz_id) {
-    let user_name = "admin"; //TODO: username
+    let user_name = req.session.username;
     let sql = 'SELECT answer_json FROM answers WHERE id = ' + quiz_id + ';'
     db.all(sql, [], (err, rows) => {
         if(err) throw(err);
@@ -196,6 +197,31 @@ function load_quiz_list(req, res) {
         });
     });
 }
+function load_sign_in(req, res) {
+    req.session.username = undefined;
+    req.session.session_key = undefined;
+    res.render('sign_in', {
+        csrfToken: req.csrfToken(),
+    });
+}
+function signed_in_session(req,res) {
+    return new Promise((resolve,reject) => {
+        let signed_in = (req.session.username !== undefined);
+        if(!signed_in) resolve(false);
+
+        let user = req.session.username;
+        let session_key = req.session.session_key;
+        let sql = 'SELECT session_key FROM sessions WHERE username = "' + user + '" AND session_key = "' + session_key + '";';
+        db.all(sql, [], (err, rows) => {
+            if(err) throw(err);
+            let session_key_str: string;
+            for(let {session_key} of rows)
+                session_key_str = session_key;
+            signed_in = (session_key_str != undefined);
+            resolve(signed_in);
+        });
+    });
+}
 let open = promisify(fs.open);
 let express = require('express');
 let server = express();
@@ -220,47 +246,113 @@ server.use(csrfProtection);
 server.set('view engine', 'pug');
 
 server.get('/quizzes', function(req, res) {
-    load_quiz_list(req, res);
+    signed_in_session(req,res).then(signed_in => {
+        if(signed_in)
+            load_quiz_list(req, res);
+        else
+            load_sign_in(req,res);
+
+    });
 });
 server.get('/quiz', function(req, res) {
-    let url = req.url;
-    let regex = /\?quiz_id=\d+\b/;
-    if(regex.test(url)) {
-        let quiz_id = /\d+/.exec(regex.exec(url)[0])[0];
-        load_quiz(req, res,quiz_id);
-    }
-    else {
-        console.log("Wrong quiz query");
-        load_quiz_list(req, res);
-    }
+    signed_in_session(req,res).then(signed_in => {
+        if(signed_in) {
+            let url = req.url;
+            let regex = /\?quiz_id=\d+\b/;
+            if(regex.test(url)) {
+                let quiz_id = /\d+/.exec(regex.exec(url)[0])[0];
+                load_quiz(req, res,quiz_id);
+            }
+            else {
+                console.log("Wrong quiz query");
+                load_quiz_list(req, res);
+            }
+        }
+        else
+            load_sign_in(req,res);
+
+    });
+
 
 
 
 });
-server.post('/finish_quiz', function(req, res) {
-    if(req.body.json_quiz != undefined && req.body.quiz_id != undefined) {
-        let answer_json = req.body.json_quiz.replace(/"/g, "'");
-        let id = req.body.quiz_id;
-        let user_name = "admin"; //:TODO username
-        let score = 0;
-        JSON.parse(req.body.json_quiz).forEach(x =>  {
-            score+=x.time_spent;
-            let correct_ans = (x.options[x.choice-1] === x["ans"]);
-            if(!correct_ans)
-                score+=x.penalty;
-        });
-        db.run('INSERT INTO answers (id, username, score, answer_json ) VALUES (' + id + ', "' + user_name + '", ' + score + ', "' + answer_json +  '");', () =>
-                load_quiz_stat(req, res, id)
+server.get('/sign_out', function(req, res) {
+    let signed_in = (req.session.username !== undefined);
+    if(!signed_in)
+        load_sign_in(req, res);
+    else {
+        let user = req.session.username;
+        let session_key = req.session.session_key;
+        db.run('DELETE FROM sessions WHERE username = "' + user + '" AND session_key = "' + session_key + '";',() =>
+            load_sign_in(req, res)
         );
     }
-    else {
-        console.log("Error submitting the quiz");
-        load_quiz_list(req, res);
-    }
+});
+server.get('/', function(req, res) {
+    signed_in_session(req,res).then(signed_in => {
+        if(signed_in)
+            load_quiz_list(req, res);
+        else
+            load_sign_in(req,res);
+
+    });
+});
+server.post('/finish_quiz', function(req, res) {
+    signed_in_session(req,res).then(signed_in => {
+        if(signed_in)
+            if(req.body.json_quiz != undefined && req.body.quiz_id != undefined) {
+                let answer_json = req.body.json_quiz.replace(/"/g, "'");
+                let id = req.body.quiz_id;
+                let user_name = req.session.username;
+                let score = 0;
+                JSON.parse(req.body.json_quiz).forEach(x =>  {
+                    score+=x.time_spent;
+                    let correct_ans = (x.options[x.choice-1] === x["ans"]);
+                    if(!correct_ans)
+                        score+=x.penalty;
+                });
+                db.run('INSERT INTO answers (id, username, score, answer_json ) VALUES (' + id + ', "' + user_name + '", ' + score + ', "' + answer_json +  '");', () =>
+                    load_quiz_stat(req, res, id)
+                );
+            }
+            else {
+                console.log("Error submitting the quiz");
+                load_quiz_list(req, res);
+            }
+        else
+            load_sign_in(req,res);
+
+    });
+});
+server.post('/sign_in', function(req, res) {
+    let signed_in = (req.session.username !== undefined);
+
+    if(!signed_in && req.body.username != "" && req.body.username != undefined) {
+        let user = req.body.username;
+        let pass = req.body.password;
+
+        let sql = 'SELECT username FROM users WHERE username = "' + user + '" AND password = "' + pass + '";';
+        db.all(sql, [], (err, rows) => {
+            if(err) throw(err);
+            let username_str: string;
+            for(let {username} of rows)
+                username_str = username;
+
+            if(username_str != undefined) {
+                let session_username = req.session.username = req.body.username;
+                let session_key = req.session.session_key = get_random_session_key();
+                db.run('INSERT INTO sessions (username, session_key) VALUES ("' + session_username + '", "' + session_key + '");',
+                    () => res.redirect('/')
+                );
+            } else {
+                console.log("fuck");
+                res.redirect('/');
+            }
+        });
+    } else
+        res.redirect('/');
 
 });
-
-//make_db();
-//add_memes();
 
 server.listen(8080);
