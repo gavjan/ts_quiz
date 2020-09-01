@@ -1,0 +1,12 @@
+doctype html
+head
+    title TS Quiz
+    meta(charset='UTF-8')
+    style
+        include main.css
+h1 Change Password
+form(action="/change_pass" method="POST")
+    input(type="password", placeholder="new password", name="new_password")
+    input(type="password", placeholder="new password (again)", name="new_password2")
+    input(type="submit", name="submit", value="Change Password")
+    input(type="hidden" name="_csrf" value=csrfToken)

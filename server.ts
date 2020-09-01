@@ -204,6 +204,11 @@ function load_sign_in(req, res) {
         csrfToken: req.csrfToken(),
     });
 }
+function load_change_pass(req, res) {
+    res.render('change_pass', {
+        csrfToken: req.csrfToken(),
+    });
+}
 function signed_in_session(req,res) {
     return new Promise((resolve,reject) => {
         let signed_in = (req.session.username !== undefined);
@@ -222,6 +227,29 @@ function signed_in_session(req,res) {
         });
     });
 }
+function get_random_session_key() {
+    return crypto.randomBytes(16).toString('hex');
+}
+function change_pass(req, res) {
+    let new_pass = req.body.new_password;
+    let new_pass2 = req.body.new_password2;
+
+    if(new_pass !== new_pass2)
+        load_change_pass(req,res);
+    else {
+        let user = req.session.username;
+        let curr_session_key = req.session.session_key;
+        db.run('DELETE FROM sessions WHERE username = "' + user + '";',() =>
+            db.run('INSERT INTO sessions (username, session_key) VALUES ("' + user + '", "' + curr_session_key + '");', () =>
+                db.run('UPDATE users SET password = "' + new_pass + '" WHERE username = "' + user + '";', () =>
+                    load_quiz_list(req, res)
+                )
+            )
+        );
+
+    }
+
+}
 let open = promisify(fs.open);
 let express = require('express');
 let server = express();
@@ -231,11 +259,8 @@ let csrfProtection = csrf({cookie: true});
 let body_parser = require('body-parser');
 let session = require('express-session');
 let db = new sqlite3.Database('data.db');
-
 let crypto = require("crypto");
-function get_random_session_key() {
-    return crypto.randomBytes(16).toString('hex');
-}
+
 
 server.use(session({secret: "hurrdurr"}));
 server.use(body_parser.urlencoded({
@@ -298,6 +323,14 @@ server.get('/', function(req, res) {
 
     });
 });
+server.get('/change_pass', function(req, res) {
+    signed_in_session(req,res).then(signed_in => {
+        if(signed_in)
+            load_change_pass(req,res);
+        else
+            load_sign_in(req,res);
+    });
+});
 server.post('/finish_quiz', function(req, res) {
     signed_in_session(req,res).then(signed_in => {
         if(signed_in)
@@ -345,14 +378,22 @@ server.post('/sign_in', function(req, res) {
                 db.run('INSERT INTO sessions (username, session_key) VALUES ("' + session_username + '", "' + session_key + '");',
                     () => res.redirect('/')
                 );
-            } else {
-                console.log("fuck");
+            } else
                 res.redirect('/');
-            }
+
         });
     } else
         res.redirect('/');
 
+});
+
+server.post('/change_pass', function(req, res) {
+    signed_in_session(req,res).then(signed_in => {
+        if(signed_in)
+            change_pass(req,res);
+        else
+            load_sign_in(req,res);
+    });
 });
 
 server.listen(8080);
