@@ -5,7 +5,7 @@ function to_sql_date(date: Date): string {
     return date.toISOString().replace("T", " ").replace(/\.[0-9]{3}Z/g, "");
 }
 function insert_start_date_to_db(user_name, quiz_id) {
-    return new Promise((resolve,reject) => {
+    return new Promise((resolve, reject) => {
         let sql = 'SELECT username FROM attempts WHERE username = "' + user_name + '" AND quiz_id = ' + quiz_id + ';';
         db.all(sql, [], (err, rows) => {
             if(err) throw(err);
@@ -16,11 +16,11 @@ function insert_start_date_to_db(user_name, quiz_id) {
             let date = to_sql_date(new Date());
 
             if(username_str == undefined)
-                db.run('INSERT INTO attempts (username, quiz_id, start_date) VALUES ("' + user_name + '", "' + quiz_id+ '", "' + date + '");', ()=>
+                db.run('INSERT INTO attempts (username, quiz_id, start_date) VALUES ("' + user_name + '", "' + quiz_id + '", "' + date + '");', () =>
                     resolve()
                 )
             else
-                db.run('UPDATE attempts SET start_date = "' + date + '" WHERE username = "' + user_name + '" AND quiz_id = ' + quiz_id + ';', ()=>
+                db.run('UPDATE attempts SET start_date = "' + date + '" WHERE username = "' + user_name + '" AND quiz_id = ' + quiz_id + ';', () =>
                     resolve()
                 )
 
@@ -28,7 +28,7 @@ function insert_start_date_to_db(user_name, quiz_id) {
     });
 }
 function get_solve_date_diff(user_name, quiz_id) {
-    return new Promise((resolve,reject) => {
+    return new Promise((resolve, reject) => {
         let sql = 'SELECT start_date FROM attempts WHERE username = "' + user_name + '" AND quiz_id = ' + quiz_id + ';';
         db.all(sql, [], (err, rows) => {
             if(err) throw(err);
@@ -41,10 +41,9 @@ function get_solve_date_diff(user_name, quiz_id) {
                 let start_date = new Date(start_date_str);
                 let now = new Date();
 
-                let diff :number = Math.abs((now.getTime()-start_date.getTime())/1000);
+                let diff: number = Math.abs((now.getTime() - start_date.getTime()) / 1000);
                 resolve(diff);
-            }
-            else
+            } else
                 resolve(0);
 
         });
@@ -99,15 +98,15 @@ function format_spent_seconds(seconds: number) {
     let mm = date.getUTCMinutes();
     let ss = date.getSeconds();
 
-    let hour="";
-    let minute="";
+    let hour = "";
+    let minute = "";
     let second;
 
-    if(hh!=0) hour = hh + "h ";
-    if(mm!=0) minute = mm +"m ";
+    if(hh != 0) hour = hh + "h ";
+    if(mm != 0) minute = mm + "m ";
     second = ss + "s";
 
-    return hour+minute+second;
+    return hour + minute + second;
 
 }
 function parse_stats(answer_json, questions_avg) {
@@ -117,15 +116,15 @@ function parse_stats(answer_json, questions_avg) {
         num++;
         let question_str = x.question;
         let ans = x.ans;
-        let your_ans = x.options[x.choice-1];
+        let your_ans = x.options[x.choice - 1];
 
         let score = x.time_spent;
-        let correct_ans = (x.options[x.choice-1] === x["ans"]);
+        let correct_ans = (x.options[x.choice - 1] === x["ans"]);
         if(!correct_ans)
-            score+=x.penalty;
+            score += x.penalty;
         score = format_spent_seconds(score);
 
-        let avg_time = questions_avg[num-1];
+        let avg_time = questions_avg[num - 1];
         if(avg_time !== "-")
             avg_time = format_spent_seconds(parseInt(avg_time));
 
@@ -146,7 +145,7 @@ function count_questions_avg(answer_json_str_arr) {
         let ans_times = [];
         let answer = JSON.parse(answer_str.replace(/'/g, '"'));
         answer.forEach(x => {
-            let correct_ans = (x.options[x.choice-1] === x["ans"]);
+            let correct_ans = (x.options[x.choice - 1] === x["ans"]);
             if(correct_ans)
                 ans_times.push(x.time_spent);
             else
@@ -157,9 +156,9 @@ function count_questions_avg(answer_json_str_arr) {
 
     let questions_count = all_ans_times[0].length;
     let questions_avg = [];
-    for(let i=0; i < questions_count; i++) {
+    for(let i = 0; i < questions_count; i++) {
         let question_avg_array = [];
-        for(let j=0; j < all_ans_times.length ; j++) {
+        for(let j = 0; j < all_ans_times.length; j++) {
             let time = all_ans_times[j][i];
             if(time !== -1)
                 question_avg_array.push(time);
@@ -168,8 +167,8 @@ function count_questions_avg(answer_json_str_arr) {
         let question_avg = "-";
         if(question_avg_array.length) {
             let questions_sum = 0;
-            question_avg_array.forEach(x => questions_sum+=x );
-            question_avg = (questions_sum/question_avg_array.length).toString();
+            question_avg_array.forEach(x => questions_sum += x);
+            question_avg = (questions_sum / question_avg_array.length).toString();
         }
         questions_avg.push(question_avg);
     }
@@ -283,11 +282,11 @@ function change_pass(req, res) {
     let new_pass2 = req.body.new_password2;
 
     if(new_pass !== new_pass2)
-        load_change_pass(req,res);
+        load_change_pass(req, res);
     else {
         let user = req.session.username;
         let curr_session_key = req.session.session_key;
-        db.run('DELETE FROM sessions WHERE username = "' + user + '";',() =>
+        db.run('DELETE FROM sessions WHERE username = "' + user + '";', () =>
             db.run('INSERT INTO sessions (username, session_key) VALUES ("' + user + '", "' + curr_session_key + '");', () =>
                 db.run('UPDATE users SET password = "' + new_pass + '" WHERE username = "' + user + '";', () =>
                     load_quiz_list(req, res)
@@ -322,7 +321,7 @@ server.get('/quizzes', function(req, res) {
         if(signed_in)
             load_quiz_list(req, res);
         else
-            load_sign_in(req,res);
+            load_sign_in(req, res);
 
     });
 });
@@ -333,19 +332,15 @@ server.get('/quiz', function(req, res) {
             let regex = /\?quiz_id=\d+\b/;
             if(regex.test(url)) {
                 let quiz_id = /\d+/.exec(regex.exec(url)[0])[0];
-                load_quiz(req, res,quiz_id);
-            }
-            else {
+                load_quiz(req, res, quiz_id);
+            } else {
                 console.log("Wrong quiz query");
                 load_quiz_list(req, res);
             }
-        }
-        else
-            load_sign_in(req,res);
+        } else
+            load_sign_in(req, res);
 
     });
-
-
 
 
 });
@@ -356,7 +351,7 @@ server.get('/sign_out', function(req, res) {
     else {
         let user = req.session.username;
         let session_key = req.session.session_key;
-        db.run('DELETE FROM sessions WHERE username = "' + user + '" AND session_key = "' + session_key + '";',() =>
+        db.run('DELETE FROM sessions WHERE username = "' + user + '" AND session_key = "' + session_key + '";', () =>
             load_sign_in(req, res)
         );
     }
@@ -366,16 +361,16 @@ server.get('/', function(req, res) {
         if(signed_in)
             load_quiz_list(req, res);
         else
-            load_sign_in(req,res);
+            load_sign_in(req, res);
 
     });
 });
 server.get('/change_pass', function(req, res) {
     signed_in_session(req).then(signed_in => {
         if(signed_in)
-            load_change_pass(req,res);
+            load_change_pass(req, res);
         else
-            load_sign_in(req,res);
+            load_sign_in(req, res);
     });
 });
 server.post('/finish_quiz', function(req, res) {
@@ -386,13 +381,13 @@ server.post('/finish_quiz', function(req, res) {
                 let id = req.body.quiz_id;
                 let user_name = req.session.username;
                 let score = 0;
-                JSON.parse(req.body.json_quiz).forEach(x =>  {
-                    score+=x.time_spent;
-                    let correct_ans = (x.options[x.choice-1] === x["ans"]);
+                JSON.parse(req.body.json_quiz).forEach(x => {
+                    score += x.time_spent;
+                    let correct_ans = (x.options[x.choice - 1] === x["ans"]);
                     if(!correct_ans)
-                        score+=x.penalty;
+                        score += x.penalty;
                 });
-                
+
                 get_solve_date_diff(user_name, id).then((diff) => {
                         console.log("server waited {$diff} seconds for client to solve the quiz.");
                         db.run('INSERT INTO answers (id, username, score, server_waited, answer_json) VALUES (' + id + ', "' + user_name + '", ' + score + ', ' + diff + ', "' + answer_json + '");', () =>
@@ -400,13 +395,12 @@ server.post('/finish_quiz', function(req, res) {
                         )
                     }
                 )
-            }
-            else {
+            } else {
                 console.log("Error submitting the quiz");
                 load_quiz_list(req, res);
             }
         else
-            load_sign_in(req,res);
+            load_sign_in(req, res);
 
     });
 });
@@ -441,9 +435,9 @@ server.post('/sign_in', function(req, res) {
 server.post('/change_pass', function(req, res) {
     signed_in_session(req).then(signed_in => {
         if(signed_in)
-            change_pass(req,res);
+            change_pass(req, res);
         else
-            load_sign_in(req,res);
+            load_sign_in(req, res);
     });
 });
 
