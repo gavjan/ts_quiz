@@ -115,11 +115,6 @@ function make_db() {
     });
     });
 
-
-
-
-
-
 }
 function insert_db() {
 

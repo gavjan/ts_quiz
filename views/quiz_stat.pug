@@ -17,6 +17,7 @@ div(style='text-align:center')
             th Correct Ans.
             th Your Ans.
             th Score
+            th Avg.
         each stat in stats
             tr
                 td= stat.num
@@ -24,6 +25,17 @@ div(style='text-align:center')
                 td= stat.ans
                 td= stat.your_ans
                 td= stat.score
-
+                td= stat.avg_time
     h2="Overall Score: " + overall_score
+    hr
+    h1(style='font-size: 50px')="Top 3 Scores"
+    table
+        tr
+            th Username
+            th Score
+        each score in top_scores
+            tr
+                td= score.username
+                td= score.score
+
     script(src='assets/js/results.js')
