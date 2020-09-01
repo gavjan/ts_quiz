@@ -4,6 +4,53 @@ import * as sqlite3 from 'sqlite3';
 function to_sql_date(date: Date): string {
     return date.toISOString().replace("T", " ").replace(/\.[0-9]{3}Z/g, "");
 }
+function insert_start_date_to_db(user_name, quiz_id) {
+    return new Promise((resolve,reject) => {
+        let sql = 'SELECT username FROM attempts WHERE username = "' + user_name + '" AND quiz_id = ' + quiz_id + ';';
+        db.all(sql, [], (err, rows) => {
+            if(err) throw(err);
+
+            let username_str: string;
+            for(let {username} of rows)
+                username_str = username;
+            let date = to_sql_date(new Date());
+
+            if(username_str == undefined)
+                db.run('INSERT INTO attempts (username, quiz_id, start_date) VALUES ("' + user_name + '", "' + quiz_id+ '", "' + date + '");', ()=>
+                    resolve()
+                )
+            else
+                db.run('UPDATE attempts SET start_date = "' + date + '" WHERE username = "' + user_name + '" AND quiz_id = ' + quiz_id + ';', ()=>
+                    resolve()
+                )
+
+        });
+    });
+}
+function get_solve_date_diff(user_name, quiz_id) {
+    return new Promise((resolve,reject) => {
+        let sql = 'SELECT start_date FROM attempts WHERE username = "' + user_name + '" AND quiz_id = ' + quiz_id + ';';
+        db.all(sql, [], (err, rows) => {
+            if(err) throw(err);
+
+            let start_date_str: string;
+            for(let {start_date} of rows)
+                start_date_str = start_date;
+
+            if(start_date_str != undefined) {
+                let start_date = new Date(start_date_str);
+                let now = new Date();
+
+                let diff :number = Math.abs((now.getTime()-start_date.getTime())/1000);
+                resolve(diff);
+            }
+            else
+                resolve(0);
+
+        });
+    });
+
+}
 function load_quiz(req, res, quiz_id) {
     let user_name = req.session.username;
     let sql = 'SELECT username FROM answers WHERE username = "' + user_name + '" AND id = ' + quiz_id + ';';
@@ -24,11 +71,14 @@ function load_quiz(req, res, quiz_id) {
                 if(quiz_json_str != undefined) {
                     let questions_json = JSON.parse(quiz_json_str.replace(/'/g, '"'));
 
-                    res.render('quiz', {
-                        csrfToken: req.csrfToken(),
-                        quiz_json: JSON.stringify(questions_json),
-                        quiz_id: quiz_id
-                    });
+
+                    insert_start_date_to_db(user_name, quiz_id).then(() =>
+                        res.render('quiz', {
+                            csrfToken: req.csrfToken(),
+                            quiz_json: JSON.stringify(questions_json),
+                            quiz_id: quiz_id
+                        })
+                    )
 
                 } else {
                     console.log("Error loading quiz");
@@ -182,7 +232,7 @@ function load_quiz_stat(req, res, quiz_id) {
 
 }
 function load_quiz_list(req, res) {
-    let sql = 'SELECT id FROM quizzes;';
+    let sql = 'SELECT id FROM quizzes ORDER BY id;';
     db.all(sql, [], (err, rows) => {
         if(err) throw(err);
         let quiz_id_arr = [];
@@ -342,9 +392,14 @@ server.post('/finish_quiz', function(req, res) {
                     if(!correct_ans)
                         score+=x.penalty;
                 });
-                db.run('INSERT INTO answers (id, username, score, answer_json ) VALUES (' + id + ', "' + user_name + '", ' + score + ', "' + answer_json +  '");', () =>
-                    load_quiz_stat(req, res, id)
-                );
+                
+                get_solve_date_diff(user_name, id).then((diff) => {
+                        console.log("server waited {$diff} seconds for client to solve the quiz.");
+                        db.run('INSERT INTO answers (id, username, score, server_waited, answer_json) VALUES (' + id + ', "' + user_name + '", ' + score + ', ' + diff + ', "' + answer_json + '");', () =>
+                            load_quiz_stat(req, res, id)
+                        )
+                    }
+                )
             }
             else {
                 console.log("Error submitting the quiz");
@@ -383,7 +438,6 @@ server.post('/sign_in', function(req, res) {
         res.redirect('/');
 
 });
-
 server.post('/change_pass', function(req, res) {
     signed_in_session(req).then(signed_in => {
         if(signed_in)

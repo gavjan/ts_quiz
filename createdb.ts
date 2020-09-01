@@ -100,12 +100,18 @@ function make_db() {
     db.run('CREATE TABLE answers (' +
         'username VARCHAR(32),' +
         'score INT,' +
+        'server_waited INT,' +
         'answer_json VARCHAR(4096),' +
         'id INT); ', () => {
 
     db.run('CREATE TABLE users (' +
         'username VARCHAR(32),' +
         'password VARCHAR(32));', () => {
+    
+    db.run('CREATE TABLE attempts (' +
+        'username VARCHAR(32),' +
+        'quiz_id INT,' +
+        'start_date DATETIME);', () => {
 
         db.run('INSERT INTO users (username, password) VALUES ("user1", "user1");');
         db.run('INSERT INTO users (username, password) VALUES ("user2", "user2");');
@@ -115,6 +121,7 @@ function make_db() {
         });
         db.close();
 
+    });
     });
     });
     });
