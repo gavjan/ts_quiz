@@ -113,6 +113,7 @@ function make_db() {
         'quiz_id INT,' +
         'start_date DATETIME);', () => {
 
+        db.run('INSERT INTO users (username, password) VALUES ("user", "user");');
         db.run('INSERT INTO users (username, password) VALUES ("user1", "user1");');
         db.run('INSERT INTO users (username, password) VALUES ("user2", "user2");');
         quizzes_json.forEach(x => {

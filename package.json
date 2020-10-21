@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc --target es2015 views/main.ts",
     "test": "npx ts-node tests/test.ts",
-    "createdb": "npx ts-node createdb.ts"
+    "createdb": "rm data.db && npx ts-node createdb.ts",
+    "start": "npx ts-node server.ts"
   },
   "repository": {
     "type": "git",

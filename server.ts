@@ -5,7 +5,7 @@ function to_sql_date(date: Date): string {
     return date.toISOString().replace("T", " ").replace(/\.[0-9]{3}Z/g, "");
 }
 function insert_start_date_to_db(user_name, quiz_id) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         let sql = 'SELECT username FROM attempts WHERE username = "' + user_name + '" AND quiz_id = ' + quiz_id + ';';
         db.all(sql, [], (err, rows) => {
             if(err) throw(err);
@@ -28,7 +28,7 @@ function insert_start_date_to_db(user_name, quiz_id) {
     });
 }
 function get_solve_date_diff(user_name, quiz_id) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         let sql = 'SELECT start_date FROM attempts WHERE username = "' + user_name + '" AND quiz_id = ' + quiz_id + ';';
         db.all(sql, [], (err, rows) => {
             if(err) throw(err);
@@ -308,7 +308,7 @@ let db = new sqlite3.Database('data.db');
 let crypto = require("crypto");
 
 
-server.use(session({secret: "hurrdurr"}));
+server.use(session({secret: "hurrdurr", proxy: true, resave: true, saveUninitialized: true}));
 server.use(body_parser.urlencoded({
     extended: true
 }));
@@ -442,3 +442,4 @@ server.post('/change_pass', function(req, res) {
 });
 
 server.listen(8080);
+console.log("Listening on localhost:8080");
