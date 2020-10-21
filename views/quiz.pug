@@ -18,7 +18,7 @@ head
             a#prev_question_button.inactive_button.page_button.unselectable(onclick='prev_question()') &laquo;Previous
             a#next_question_button.active_button.page_button.unselectable(onclick='next_question()') Next&raquo;
         #bottom_right.corner
-            a#cancel_button.active_button(href='index.html') Cancel
+            a#cancel_button.active_button(href='quizzes') Cancel
             form#finish_form(action="/finish_quiz" method="POST")
                 a#finish_button.inactive_button.unselectable(onclick='finish_quiz()') Finish
                 input#json_quiz_field(type="hidden", name="json_quiz", value="undefined")
